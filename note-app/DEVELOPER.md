@@ -144,14 +144,14 @@ sequenceDiagram
     participant App as App.tsx
     participant Store as notesAtom
     participant IPC as window.context
-    participant Main as main/lib
+    participant MainLib as main/lib
 
     App->>Store: mount triggers loadNotes()
     Store->>IPC: getNotes()
-    IPC->>Main: ipc invoke getNotes
-    Main->>Main: ensureDir ~/NoteMark
-    Main->>Main: readdir *.md, stat each file
-    Main-->>Store: NoteInfo[] sorted by lastEditTime desc
+    IPC->>MainLib: ipc invoke getNotes
+    MainLib->>MainLib: ensureDir ~/NoteMark
+    MainLib->>MainLib: readdir *.md, stat each file
+    MainLib-->>Store: NoteInfo list sorted by lastEditTime desc
     Store-->>App: sidebar renders NotePreviewList
 ```
 
@@ -169,15 +169,15 @@ sequenceDiagram
     participant User
     participant List as NotePreviewList
     participant Index as selectedNoteIndexAtom
-    participant Note as selectedNoteAtom
+    participant SelAtom as selectedNoteAtom
     participant IPC as window.context
 
-    User->>List: click note at index N
+    User->>List: click list item at index N
     List->>Index: setSelectedNoteIndex(N)
-    Index->>Note: recompute selectedNoteAtom
-    Note->>IPC: readNote(notes[N].title)
-    IPC-->>Note: markdown string
-    Note-->>User: MarkdownEditor renders with content
+    Index->>SelAtom: recompute selectedNoteAtom
+    SelAtom->>IPC: readNote(title)
+    IPC-->>SelAtom: markdown string
+    SelAtom-->>User: MarkdownEditor renders content
 ```
 
 - `useNotesList` hook wires click handlers to `selectedNoteIndexAtom`.
@@ -196,15 +196,15 @@ sequenceDiagram
     participant IPC as window.context
 
     User->>Editor: type in MDXEditor
-    Editor->>Hook: onChange → handleAutoSaving (throttled 3s)
+    Editor->>Hook: onChange, handleAutoSaving throttled 3s
     Hook->>Store: saveNote(content)
     Store->>IPC: writeNote(title, content)
     Store->>Store: update lastEditTime in notesAtom
 
-    User->>Editor: click away (blur)
+    User->>Editor: click away blur
     Editor->>Hook: handleBlur
     Hook->>Hook: cancel pending throttle, getMarkdown()
-    Hook->>Store: saveNote(content) — immediate flush
+    Hook->>Store: saveNote content, immediate flush
 ```
 
 - Auto-save is throttled with lodash `throttle` using `autoSavingTime` (3000 ms) from `src/shared/constants.ts`.
@@ -219,13 +219,13 @@ sequenceDiagram
     participant Btn as NewNoteButton
     participant Store as createEmptyNoteAtom
     participant IPC as window.context
-    participant Main as main/lib
+    participant MainLib as main/lib
 
     User->>Btn: click +
     Btn->>Store: createEmptyNote()
     Store->>IPC: createNote()
-    IPC->>Main: showSaveDialog
-    Main-->>IPC: filename or canceled
+    IPC->>MainLib: showSaveDialog
+    MainLib-->>IPC: filename or canceled
     alt canceled or wrong directory
         IPC-->>Store: false
         Store-->>User: no change
@@ -246,7 +246,7 @@ sequenceDiagram
     participant Store as deleteNoteAtom
     participant IPC as window.context
 
-    User->>Btn: click trash (note must be selected)
+    User->>Btn: click trash, item must be selected
     Btn->>Store: deleteNote()
     Store->>IPC: deleteNote(selectedNote.title)
     IPC->>IPC: showMessageBox confirm
