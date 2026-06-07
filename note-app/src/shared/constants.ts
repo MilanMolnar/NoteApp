@@ -1,3 +1,4 @@
 export const appDirectory = "NoteMark"
 export const fileEncoding = "utf8"
 export const autoSavingTime = 3000
+export const onboardingNoteName = "Welcome.md"
