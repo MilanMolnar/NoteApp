@@ -1,9 +1,37 @@
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
-import { app, BrowserWindow, ipcMain, shell } from 'electron'
+import { app, BrowserWindow, BrowserWindowConstructorOptions, ipcMain, shell } from 'electron'
 import { join } from 'path'
 import icon from '../../resources/icon.png?asset'
 import { createNote, deleteNote, getNotes, readNote, writeNote } from './lib'
 import { CreateNote, DeleteNote, GetNotes, ReadNote, WriteNote } from '@shared/types'
+
+const platformWindowOptions = (): BrowserWindowConstructorOptions => {
+  if (process.platform === 'darwin') {
+    return {
+      transparent: true,
+      backgroundColor: '#00000000',
+      vibrancy: 'under-window',
+      titleBarStyle: 'hidden',
+      visualEffectState: 'active',
+      trafficLightPosition: { x: 10, y: 10 }
+    }
+  }
+
+  if (process.platform === 'win32') {
+    return {
+      backgroundMaterial: 'acrylic',
+      backgroundColor: '#00000000',
+      titleBarStyle: 'hidden',
+      titleBarOverlay: {
+        color: '#00000000',
+        symbolColor: '#ffffff',
+        height: 32
+      }
+    }
+  }
+
+  return {}
+}
 
 function createWindow(): void {
   // Create the browser window.
@@ -15,11 +43,7 @@ function createWindow(): void {
     ...(process.platform === 'linux' ? { icon } : {}),
     center: true,
     title: 'Note App',
-    backgroundMaterial: 'acrylic', // on Windows 11
-    vibrancy: 'under-window',
-    titleBarStyle: 'hidden',
-    visualEffectState: 'active',
-    trafficLightPosition: { x: 10, y: 10 },
+    ...platformWindowOptions(),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: true,
@@ -63,7 +87,7 @@ app.whenReady().then(() => {
   ipcMain.handle('writeNote', (_, ...args: Parameters<WriteNote>) => writeNote(...args))
   ipcMain.handle('createNote', (_, ...args: Parameters<CreateNote>) => createNote(...args))
   ipcMain.handle('deleteNote', (_, ...args: Parameters<DeleteNote>) => deleteNote(...args))
-  
+
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
 

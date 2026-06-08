@@ -17,7 +17,6 @@ export const separator = (): string => {
 export const getRootDir = () => {
     return `${homedir()}${separator()}${appDirectory}`
 }
-// 
 
 
 export const getNotes: GetNotes = async () => {
@@ -134,5 +133,4 @@ export const deleteNote: DeleteNote = async (filename) =>{
     await remove(`${rootDir}${separator()}${filename}.md`)
 
     return true
-
 }
