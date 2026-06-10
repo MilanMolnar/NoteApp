@@ -9,6 +9,8 @@ const platformWindowOptions = (): BrowserWindowConstructorOptions => {
   if (process.platform === 'darwin') {
     return {
       frame: false,
+      transparent: true,
+      backgroundColor: '#00000000',
       vibrancy: 'under-window',
       titleBarStyle: 'hidden',
       visualEffectState: 'active',
@@ -49,6 +51,10 @@ function createWindow(): void {
       contextIsolation: true
     }
   })
+
+  if (process.platform === 'darwin') {
+    mainWindow.setBackgroundColor('#00000000')
+  }
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()

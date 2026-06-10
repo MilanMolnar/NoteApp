@@ -2,16 +2,17 @@
 @plugin "@tailwindcss/typography";
 
 @layer base {
+  html,
+  body,
   #root {
-    @apply h-full;
+    @apply h-full bg-transparent;
+
+    background-color: transparent;
   }
 
-  html, body {
-    @apply h-full;
-
+  html,
+  body {
     @apply select-none;
-
-    @apply bg-transparent;
 
     @apply font-mono antialiased text-white;
 
